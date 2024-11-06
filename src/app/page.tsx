@@ -1,43 +1,62 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Contract } from "ethers";
-import { getBlockchainProvider } from "../utils/web3";
+import { useCallback, useEffect, useState } from "react";
+import { getBlockchain } from "../utils/web3";
 import Link from "next/link";
-
-import { CONTRACT_ABI, CONTRACT_ADDRESS } from "../utils/contract-config";
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
+  const [content, setContent] = useState("");
 
-  useEffect(() => {
-    const fetchPosts = async () => {
-      const { provider } = await getBlockchainProvider();
-      const contract = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
-      const count = await contract.getPostCount();
-      console.log('count', count);
-      
-      const postsArray = [];
-      for (let i = 1; i <= count; i++) {
-        const post = await contract.posts(i);
-        postsArray.push(post);
-      }
-      setPosts(postsArray);
-    };
-    fetchPosts();
+  const fetch = useCallback(async () => {
+    const { contractProvider } = await getBlockchain();
+    const count = await contractProvider.postCount();
+    const postsArray = [];
+    for (let i = 1; i <= count; i++) {
+      const post = await contractProvider.posts(i);
+      postsArray.push(post);
+    }
+    setPosts(postsArray);
   }, []);
 
+  useEffect(() => {
+    fetch();
+  }, [fetch]);
+
+  const handleCreatePost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { contractSigner } = await getBlockchain();
+    try {
+      const transaction = await contractSigner.createPost(content);
+      await transaction.wait(); // 等待交易确认
+      setContent(""); // 清空输入框
+      fetch();
+    } catch (error) {
+      console.error("Error creating post:", error);
+    }
+  };
   return (
     <div>
       <h1>Social Platform</h1>
       {posts.map((post) => (
-        <Link href={`/posts/${post.id}`} key={post.id}>
-          <a>
-            <h2>{post.content}</h2>
-            <p>Likes: {post.likes}</p>
-          </a>
-        </Link>
+        <div key={post.id}>
+          <Link href={`/posts/${post.id}`}>
+            <div>{post.content}</div>
+          </Link>
+          <div>{post.likes}</div>
+        </div>
       ))}
+
+      <h1>发布内容</h1>
+      <form onSubmit={handleCreatePost}>
+        <textarea
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          placeholder="输入帖子内容..."
+          required
+        />
+        <button type="submit">发布帖子</button>
+      </form>
     </div>
   );
 };

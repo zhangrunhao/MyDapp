@@ -37,4 +37,8 @@ contract SocialPlatform {
     function commentOnPost(uint _postId, string memory _content) public {
         comments[_postId].push(Comment(_postId, msg.sender, _content));
     }
+
+    function getPost(uint _postId) view public returns(Post memory) {
+        return posts[_postId];
+    }
 }

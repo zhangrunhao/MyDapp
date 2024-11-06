@@ -65,6 +65,47 @@ export const CONTRACT_ABI = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_postId",
+        type: "uint256",
+      },
+    ],
+    name: "getPost",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint256",
+            name: "id",
+            type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "author",
+            type: "address",
+          },
+          {
+            internalType: "string",
+            name: "content",
+            type: "string",
+          },
+          {
+            internalType: "uint256",
+            name: "likes",
+            type: "uint256",
+          },
+        ],
+        internalType: "struct SocialPlatform.Post",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "getPostCount",
     outputs: [
