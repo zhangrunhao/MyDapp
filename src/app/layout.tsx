@@ -5,6 +5,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <title>MyDapp</title>
+      </head>
       <body>{children}</body>
     </html>
   );
