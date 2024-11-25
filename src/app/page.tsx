@@ -4,10 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import { getBlockchain } from "../utils/web3";
 import Link from "next/link";
 
-const Home = () => {
+const usePostsList = () => {
   const [posts, setPosts] = useState([]);
-  const [content, setContent] = useState("");
-
   const fetch = useCallback(async () => {
     const { contractProvider } = await getBlockchain();
     const count = await contractProvider.postCount();
@@ -23,6 +21,16 @@ const Home = () => {
     fetch();
   }, [fetch]);
 
+  return {
+    posts,
+    fetch,
+  };
+};
+
+const Home = () => {
+  const [content, setContent] = useState("");
+  const { posts } = usePostsList();
+
   const handleCreatePost = async (e: React.FormEvent) => {
     e.preventDefault();
     const { contractSigner } = await getBlockchain();
@@ -37,7 +45,7 @@ const Home = () => {
   };
   return (
     <div>
-      <h1>Social Platform</h1>
+      <h1 className="text-3x1">Social Platform</h1>
       {posts.map((post) => (
         <div key={post.id}>
           <Link href={`/posts/${post.id}`}>
